@@ -7,7 +7,7 @@ Interactive data visualizations for Ole Miss Web WBB Senior Day 2026
 
 An interactive data visualization telling the story of seven transfers who became the backbone of Ole Miss Women's Basketball under Coach Yolett "Yo" McPhee-McCuin.
 
-**[View Live →](YOUR_GITHUB_PAGES_LINK_HERE)**
+**[View Live →](https://theblacktechie.github.io/olemisswbbseniorday1/)** 
 
 ---
 
