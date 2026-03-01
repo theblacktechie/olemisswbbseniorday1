@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Mami — Ole Miss WBB · Class of 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+:root{
+  --red:#CE1126;--navy:#14213D;--white:#fff;--off-white:#f7f6f2;
+  --chart-bg:#f9fafb;--text-dark:#1a1a1a;--text-mid:#4b4b4b;
+  --text-muted:#6b7280;--gray-line:#e5e7eb;--prev:#9ca3af;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:#fff;color:var(--text-dark);-webkit-font-smoothing:antialiased;}
+.masthead{border-top:4px solid var(--red);border-bottom:1px solid var(--navy);padding:11px 0;background:#fff;}
+.masthead-inner{display:flex;align-items:center;justify-content:center;gap:16px;max-width:1060px;margin:0 auto;padding:0 24px;flex-wrap:wrap;}
+.badge{background:var(--red);color:#fff;font-weight:600;font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:4px 11px;border-radius:2px;}
+.m-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--navy);}
+.m-date{font-size:11px;color:var(--text-muted);}
+.hero{max-width:780px;margin:0 auto;padding:60px 28px 44px;border-bottom:1px solid var(--gray-line);}
+.kicker{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:18px;}
+.headline{font-family:'Playfair Display',serif;font-size:clamp(34px,5vw,54px);font-weight:900;line-height:1.07;color:var(--navy);margin-bottom:20px;}
+.headline em{font-style:italic;color:var(--red);}
+.dek{font-family:'Lora',serif;font-size:17px;line-height:1.78;color:var(--text-mid);margin-bottom:26px;max-width:680px;}
+.byline-row{padding-top:16px;border-top:1px solid var(--gray-line);font-size:12.5px;color:var(--text-muted);}
+.byline-row strong{color:var(--text-dark);font-weight:600;}
+.section{max-width:1060px;margin:0 auto;padding:68px 28px;border-bottom:1px solid var(--gray-line);}
+.act-lbl{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+.act-lbl .n{color:var(--red);}
+.sec-head{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,42px);font-weight:700;color:var(--navy);line-height:1.14;margin-bottom:18px;}
+.sec-copy{font-family:'Lora',serif;font-size:16.5px;line-height:1.86;color:var(--text-mid);max-width:740px;margin-bottom:48px;}
+.sec-copy strong{color:var(--navy);font-weight:600;}
+.legend{display:flex;gap:24px;align-items:center;margin-bottom:20px;font-size:13.5px;color:var(--text-muted);}
+.ldot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px;}
+.ldot.prev{background:var(--prev);}
+.ldot.olm{background:var(--red);}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:24px;}
+@media(max-width:640px){.chart-grid{grid-template-columns:1fr;}}
+.cw{background:var(--chart-bg);border-radius:5px;padding:30px 26px 24px;margin-bottom:20px;}
+.ct{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.cs{font-size:13px;color:var(--text-muted);margin-bottom:22px;line-height:1.5;}
+.tooltip{position:fixed;background:#fff;border:1px solid var(--gray-line);border-radius:4px;padding:10px 14px;font-size:13px;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.12);z-index:1000;display:none;min-width:168px;}
+.tooltip strong{display:block;font-size:13.5px;color:var(--navy);margin-bottom:4px;}
+.tp{color:var(--text-muted);}
+.to{color:var(--red);font-weight:600;}
+.quotes-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:36px 0;}
+@media(max-width:640px){.quotes-row{grid-template-columns:1fr;}}
+.pq{border-left:3px solid var(--red);padding:14px 0 14px 20px;}
+.pq p{font-family:'Lora',serif;font-size:15.5px;font-style:italic;line-height:1.7;color:var(--navy);margin-bottom:9px;}
+.pq cite{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted);font-style:normal;margin-bottom:3px;}
+.pq .src{font-size:10.5px;color:var(--red);}
+.callout-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:18px;margin:40px 0;}
+.callout{border-top:2px solid var(--red);padding-top:13px;}
+.callout .num{font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:var(--navy);line-height:1;}
+.callout .lbl{font-size:12.5px;color:var(--text-muted);margin-top:5px;line-height:1.45;}
+.closing{max-width:780px;margin:0 auto;padding:60px 28px 30px;}
+.cq{background:var(--navy);color:#fff;padding:34px 38px;border-radius:5px;margin-bottom:34px;}
+.cq p{font-family:'Lora',serif;font-size:18px;font-style:italic;line-height:1.74;}
+.cq cite{display:block;margin-top:14px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);font-style:normal;}
+.cq .src{display:block;font-size:11px;color:rgba(255,255,255,.35);margin-top:4px;}
+.cta{display:inline-block;background:var(--red);color:#fff;font-weight:600;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;padding:13px 26px;text-decoration:none;border-radius:2px;margin-bottom:40px;}
+.cta:hover{background:#a00e1e;}
+.attr{font-size:11px;color:var(--text-muted);line-height:2.2;padding-top:24px;border-top:1px solid var(--gray-line);}
+.attr p{margin-bottom:0;}
+.attr strong{color:var(--text-dark);}
+svg text{font-family:'DM Sans',sans-serif;}
+</style>
+</head>
+<body>
+<div class="tooltip" id="tip"></div>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <span class="badge">Ole Miss WBB</span>
+    <span class="m-title">Portal Mami</span>
+    <span class="m-date">March 1, 2026 · Senior Day</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">The Transfer Portal · Class of 2026 · Ole Miss Women's Basketball</p>
+  <h1 class="headline">How Coach Yo Built a<br>Program Through the <em>Portal</em></h1>
+  <p class="dek">Seven Seniors. Seven different stories. One relentless argument for what Ole Miss Women's Basketball has become.</p>
+  <div class="byline-row">Data Visualization by <strong>Kris E. Smith</strong> · Atlanta, Georgia · March 1, 2026</div>
+</section>
+
+<!-- ACT I -->
+<section class="section">
+  <p class="act-lbl">Act <span class="n">I</span></p>
+  <h2 class="sec-head">The Portal Effect</h2>
+  <p class="sec-copy">When Christeen Iwuala arrived at Ole Miss from UCLA, she had averaged <strong>3.3 points per game</strong> over two seasons with the Bruins. She had two career starts. She was not a household name. This season she is averaging <strong>15.0 points and 8.5 rebounds</strong> per game and has recorded multiple double-doubles. That is not development. That is transformation. Hover over any data point to see exactly where each Senior stood before Oxford and where she stands now.</p>
+  <div class="legend">
+    <span><span class="ldot prev"></span>Previous School</span>
+    <span><span class="ldot olm"></span>Ole Miss (2025-2026)</span>
+  </div>
+  <div class="chart-grid">
+    <div class="cw">
+      <p class="ct">Points Per Game</p>
+      <p class="cs">Before and after the transfer to Ole Miss. Hover for details.</p>
+      <div id="c-ppg"></div>
+    </div>
+    <div class="cw">
+      <p class="ct">Field Goal Percentage</p>
+      <p class="cs">Shooting efficiency, before and after. Hover for details.</p>
+      <div id="c-fg"></div>
+    </div>
+  </div>
+  <div class="quotes-row">
+    <div class="pq">
+      <p>"Really like what Christeen is doing. She is a true example of how what you do in the dark will come out in the light. I think she is going to be one of the best posts in the SEC."</p>
+      <cite>Coach Yolett "Yo" McPhee-McCuin on Christeen Iwuala</cite>
+      <span class="src">Source: The Rebel Walk · November 13, 2025 · Postgame vs. Southern</span>
+    </div>
+    <div class="pq">
+      <p>"Kaitlin is an integral piece to our puzzle this upcoming season. She is fierce, a competitor, and will make her presence felt immediately in our league. What I love about her the most is her spirit!"</p>
+      <cite>Coach Yolett "Yo" McPhee-McCuin on Kaitlin Peterson</cite>
+      <span class="src">Source: Ole Miss Athletics · May 31, 2025 · Transfer signing announcement</span>
+    </div>
+  </div>
+</section>
+
+<!-- ACT II -->
+<section class="section">
+  <p class="act-lbl">Act <span class="n">II</span></p>
+  <h2 class="sec-head">The Full Picture</h2>
+  <p class="sec-copy">Scoring is only the beginning. Across every major statistical category, Coach Yo's portal class arrived with something to prove and left nothing on the table. The small multiples below show the complete before-and-after for all seven Seniors, followed by how each one stacks up against the SEC average.</p>
+  <div class="cw">
+    <p class="ct">Four-Stat Comparison: All Seven Seniors</p>
+    <p class="cs">Points Per Game · Rebounds Per Game · Assists Per Game · Field Goal %. Hover any dot to see school and value.</p>
+    <div class="legend" style="margin-bottom:14px;">
+      <span><span class="ldot prev"></span>Previous School</span>
+      <span><span class="ldot olm"></span>Ole Miss (2025-2026)</span>
+    </div>
+    <div id="c-multi"></div>
+  </div>
+  <div class="cw" style="margin-top:22px;">
+    <p class="ct">SEC Context: Points Per Game vs. Conference Average</p>
+    <p class="cs">How each Senior's Ole Miss scoring compares to the SEC positional average (10.8 Points Per Game)</p>
+    <div id="c-sec"></div>
+  </div>
+</section>
+
+<!-- ACT III -->
+<section class="section">
+  <p class="act-lbl">Act <span class="n">III</span></p>
+  <h2 class="sec-head">The Argument</h2>
+  <p class="sec-copy">Taken individually, each of these seven stories is compelling. Taken together, they are the argument. This Senior class accounts for the overwhelming majority of Ole Miss's offensive production this season. The Portal Impact Score below is a composite of scoring gain, efficiency, and volume alongside the team contribution breakdown.</p>
+  <div class="chart-grid">
+    <div class="cw">
+      <p class="ct">Portal Impact Score</p>
+      <p class="cs">Ranked by composite scoring impact. The vertical line marks the SEC portal average. Scores above 10 indicate above-average portal impact.</p>
+      <div id="c-impact"></div>
+    </div>
+    <div class="cw">
+      <p class="ct">Senior Class Contribution</p>
+      <p class="cs">Share of Ole Miss total team scoring this season</p>
+      <div id="c-contrib"></div>
+    </div>
+  </div>
+  <div class="callout-row">
+    <div class="callout"><div class="num">2,038</div><div class="lbl">McMahon career points. 5th Rebel all-time to reach 2,000.</div></div>
+    <div class="callout"><div class="num">2,967</div><div class="lbl">Peterson's high school career points at Eufaula High School.</div></div>
+    <div class="callout"><div class="num">×4.5</div><div class="lbl">Iwuala's scoring multiplier from UCLA to Ole Miss.</div></div>
+    <div class="callout"><div class="num">39</div><div class="lbl">McMahon career-high points vs. Tennessee, February 17, 2026.</div></div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="cq">
+    <p>"I don't know if I've ever seen anything like that. Cotie's a generational player. She's the only star player that I've had that I can really get on and they never give me any lip back. She lets me coach her. And I appreciate that about her."</p>
+    <cite>Coach Yolett "Yo" McPhee-McCuin on Cotie McMahon</cite>
+    <span class="src">Source: The Dispatch · February 17, 2026 · Postgame vs. Tennessee</span>
+  </div>
+  <p style="font-family:'Lora',serif;font-size:17px;line-height:1.85;color:var(--text-mid);margin-bottom:34px;">Seven transfers. Seven stories. One program. Hotty Toddy.</p>
+  <a class="cta" href="portal-mami-part2.html">Explore Each Senior's Full Profile →</a>
+  <div class="attr">
+    <p>Words, Concept, Design and Strategy by <strong>Kris E. Smith</strong></p>
+    <p>Data sourced from <strong>Ole Miss Athletics</strong>, <strong>ESPN</strong>, <strong>Sports-Reference</strong>, <strong>Tankathon</strong>, <strong>Hoops HQ</strong> and <strong>Swish Appeal</strong>.</p>
+    <p>Statistics current through <strong>February 28, 2026</strong>.</p>
+    <p>All Coach McPhee-McCuin quotes sourced directly from <strong>Ole Miss Athletics</strong> press releases and verified postgame press conferences.</p>
+    <p>Player headshots courtesy of <strong>Ole Miss Athletics</strong> · olemisssports.com</p>
+    <p>Ole Miss Women's Basketball · Senior Day · <strong>March 1, 2026</strong> · SJB Pavilion · Oxford, Mississippi</p>
+  </div>
+</section>
+
+<script>
+// ---- DATA ----
+// Numerical order: 3, 4, 8, 12, 21, 22, 32
+var DATA = [
+  {id:'peterson', sn:'K. Peterson',  fn:'Kaitlin Peterson',  num:'3',  prev:'UCF',          ppg_p:21.4, rpg_p:2.2, apg_p:1.9, fg_p:45.0, ppg_o:9.0,  rpg_o:2.0, apg_o:1.5, fg_o:40.0, impact:6,  pct:10},
+  {id:'murray',   sn:'J. Murray',    fn:'Jayla Murray',       num:'4',  prev:'Wichita State', ppg_p:12.4, rpg_p:5.3, apg_p:1.7, fg_p:49.1, ppg_o:4.5,  rpg_o:2.8, apg_o:0.8, fg_o:38.0, impact:3,  pct:5},
+  {id:'lattimore',sn:'T. Lattimore', fn:'Latasha Lattimore',  num:'8',  prev:'Virginia',      ppg_p:14.3, rpg_p:8.2, apg_p:1.0, fg_p:54.0, ppg_o:10.0, rpg_o:7.5, apg_o:0.8, fg_o:52.0, impact:8,  pct:11},
+  {id:'iwuala',   sn:'C. Iwuala',    fn:'Christeen Iwuala',   num:'12', prev:'UCLA',          ppg_p:3.3,  rpg_p:3.2, apg_p:0.6, fg_p:47.5, ppg_o:15.0, rpg_o:8.5, apg_o:0.9, fg_o:58.0, impact:22, pct:17},
+  {id:'powe',     sn:'D. Powe',      fn:'Debreasha Powe',     num:'21', prev:'Miss. State',   ppg_p:8.5,  rpg_p:3.5, apg_p:1.2, fg_p:40.3, ppg_o:5.5,  rpg_o:2.8, apg_o:1.0, fg_o:38.0, impact:4,  pct:6},
+  {id:'deshields',sn:'D. DeShields', fn:'Denim DeShields',    num:'22', prev:'Miss. State',   ppg_p:5.7,  rpg_p:1.7, apg_p:3.2, fg_p:45.0, ppg_o:4.5,  rpg_o:1.5, apg_o:2.2, fg_o:43.0, impact:3,  pct:5},
+  {id:'mcmahon',  sn:'Cotie M.',     fn:'Cotie McMahon',      num:'32', prev:'Ohio State',    ppg_p:15.3, rpg_p:5.5, apg_p:2.2, fg_p:50.0, ppg_o:19.8, rpg_o:7.0, apg_o:2.5, fg_o:46.7, impact:18, pct:22}
+];
+
+var RED = '#CE1126', NAVY = '#14213D', GRAY = '#9ca3af';
+
+var tip = document.getElementById('tip');
+function showTip(evt, html) {
+  tip.innerHTML = html;
+  tip.style.display = 'block';
+  var x = evt.clientX, y = evt.clientY;
+  var tw = tip.offsetWidth, th = tip.offsetHeight;
+  tip.style.left = (x + 14 + tw > window.innerWidth ? x - tw - 14 : x + 14) + 'px';
+  tip.style.top  = (y - th/2 < 0 ? 8 : y - th/2) + 'px';
+}
+function hideTip() { tip.style.display = 'none'; }
+
+// ---- DUMBBELL ----
+function makeDumbbell(containerId, rows, suffix) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var W = el.offsetWidth || 340;
+  var rowH = 64, mL = 154, mR = 86, mT = 12;
+  var iW = W - mL - mR;
+  var h = rows.length * rowH + mT + 34;
+  var maxVal = 0;
+  rows.forEach(function(r){ if(r.p > maxVal) maxVal = r.p; if(r.o > maxVal) maxVal = r.o; });
+  maxVal = maxVal * 1.18;
+
+  var svg = d3.select(el).append('svg')
+    .attr('width', '100%').attr('height', h)
+    .attr('viewBox', '0 0 ' + W + ' ' + h)
+    .style('overflow','visible');
+  var g = svg.append('g').attr('transform', 'translate(' + mL + ',' + mT + ')');
+
+  var xScale = d3.scaleLinear().domain([0, maxVal]).range([0, iW]);
+
+  // gridlines + x-axis labels
+  xScale.ticks(5).forEach(function(v) {
+    g.append('line').attr('x1', xScale(v)).attr('x2', xScale(v))
+      .attr('y1', 0).attr('y2', rows.length * rowH)
+      .attr('stroke', '#e5e7eb').attr('stroke-width', 1);
+    g.append('text').attr('x', xScale(v)).attr('y', rows.length * rowH + 22)
+      .attr('text-anchor', 'middle').attr('font-size', 12).attr('fill', '#9ca3af')
+      .text(suffix === '%' ? Math.round(v) + '%' : v.toFixed(1));
+  });
+
+  rows.forEach(function(r, i) {
+    var cy = i * rowH + rowH / 2;
+    var up = r.o >= r.p;
+
+    // row label
+    g.append('text').attr('x', -10).attr('y', cy - 4)
+      .attr('text-anchor', 'end').attr('font-size', 13).attr('font-weight', '600').attr('fill', NAVY)
+      .text(r.sn);
+    g.append('text').attr('x', -10).attr('y', cy + 12)
+      .attr('text-anchor', 'end').attr('font-size', 10.5).attr('fill', '#9ca3af')
+      .text(r.prev + ' → Ole Miss');
+
+    // connector
+    g.append('line')
+      .attr('x1', xScale(r.p)).attr('x2', xScale(r.o))
+      .attr('y1', cy - 3).attr('y2', cy - 3)
+      .attr('stroke', up ? RED : GRAY).attr('stroke-width', 2.5).attr('opacity', 0.6);
+
+    // prev dot
+    var pc = g.append('circle').attr('cx', xScale(r.p)).attr('cy', cy - 3)
+      .attr('r', 11).attr('fill', GRAY).attr('stroke', '#fff').attr('stroke-width', 2.5)
+      .style('cursor', 'pointer');
+    pc.on('mousemove', function(evt) {
+      var val = suffix === '%' ? Math.round(r.p) + '%' : r.p.toFixed(1);
+      showTip(evt, '<strong>' + r.fn + '</strong><div class="tp">' + r.prev + ': <b>' + val + '</b></div>');
+    }).on('mouseleave', hideTip);
+
+    // Ole Miss dot
+    var oc = g.append('circle').attr('cx', xScale(r.o)).attr('cy', cy - 3)
+      .attr('r', 11).attr('fill', RED).attr('stroke', '#fff').attr('stroke-width', 2.5)
+      .style('cursor', 'pointer');
+    oc.on('mousemove', function(evt) {
+      var val = suffix === '%' ? Math.round(r.o) + '%' : r.o.toFixed(1);
+      showTip(evt, '<strong>' + r.fn + '</strong><div class="to">Ole Miss 2025-2026: <b>' + val + '</b></div>');
+    }).on('mouseleave', hideTip);
+
+    // delta label
+    var delta = r.o - r.p;
+    var dStr = suffix === '%' ? (delta >= 0 ? '+' : '') + Math.round(delta) + '%'
+                               : (delta >= 0 ? '+' : '') + delta.toFixed(1);
+    g.append('text')
+      .attr('x', Math.max(xScale(r.o), xScale(r.p)) + 18)
+      .attr('y', cy + 2)
+      .attr('font-size', 13).attr('font-weight', '700')
+      .attr('fill', delta >= 0 ? RED : '#6b7280')
+      .text(dStr);
+  });
+
+  // axis label removed — chart title provides context
+}
+
+function buildDumbbells() {
+  var ppgRows = DATA.map(function(d){ return {sn:d.sn,fn:d.fn,prev:d.prev,p:d.ppg_p,o:d.ppg_o}; });
+  var fgRows  = DATA.map(function(d){ return {sn:d.sn,fn:d.fn,prev:d.prev,p:d.fg_p,o:d.fg_o}; });
+  makeDumbbell('c-ppg', ppgRows, '');
+  makeDumbbell('c-fg',  fgRows,  '%');
+}
+
+// ---- SMALL MULTIPLES ----
+function buildMultiples() {
+  var container = document.getElementById('c-multi');
+  if (!container) return;
+  container.innerHTML = '';
+
+  var statDefs = [
+    {pKey:'ppg_p',oKey:'ppg_o',lbl:'Points Per Game',    fmt:function(v){return v.toFixed(1);}, suf:''},
+    {pKey:'rpg_p',oKey:'rpg_o',lbl:'Rebounds Per Game',  fmt:function(v){return v.toFixed(1);}, suf:''},
+    {pKey:'apg_p',oKey:'apg_o',lbl:'Assists Per Game',   fmt:function(v){return v.toFixed(1);}, suf:''},
+    {pKey:'fg_p', oKey:'fg_o', lbl:'Field Goal %',       fmt:function(v){return Math.round(v).toString();}, suf:'%'}
+  ];
+
+  var grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:18px;';
+  container.appendChild(grid);
+
+  statDefs.forEach(function(stat) {
+    var panelDiv = document.createElement('div');
+    panelDiv.style.cssText = 'background:#fff;border-radius:4px;padding:16px 14px 10px;border:1px solid #e5e7eb;';
+    var ptitle = document.createElement('p');
+    ptitle.style.fontSize = '13.5px';
+    ptitle.style.fontWeight = '700';
+    ptitle.style.fontFamily = 'Playfair Display, serif';
+    ptitle.style.color = NAVY;
+    ptitle.style.marginBottom = '12px';
+    ptitle.textContent = stat.lbl;
+    panelDiv.appendChild(ptitle);
+    grid.appendChild(panelDiv);
+
+    var totalW = Math.max((container.offsetWidth / 2) - 20, 230);
+    var rowH = 38, mL = 102, mR = 52, iW = totalW - mL - mR;
+    var h = DATA.length * rowH + 26;
+
+    var vals = [];
+    DATA.forEach(function(d){ vals.push(d[stat.pKey]); vals.push(d[stat.oKey]); });
+    var maxV = d3.max(vals) * 1.22;
+
+    var xS = d3.scaleLinear().domain([0, maxV]).range([0, iW]);
+
+    var svg = d3.select(panelDiv).append('svg')
+      .attr('width', '100%').attr('height', h)
+      .attr('viewBox', '0 0 ' + totalW + ' ' + h);
+    var g = svg.append('g').attr('transform', 'translate(' + mL + ',4)');
+
+    DATA.forEach(function(d, i) {
+      var cy = i * rowH + rowH / 2;
+      var pv = d[stat.pKey], ov = d[stat.oKey];
+
+      g.append('text').attr('x', -6).attr('y', cy + 5)
+        .attr('text-anchor', 'end').attr('font-size', 12).attr('fill', NAVY).text(d.sn);
+
+      g.append('line')
+        .attr('x1', xS(Math.min(pv, ov))).attr('x2', xS(Math.max(pv, ov)))
+        .attr('y1', cy).attr('y2', cy)
+        .attr('stroke', ov >= pv ? RED : GRAY).attr('stroke-width', 2).attr('opacity', 0.5);
+
+      var pc = g.append('circle').attr('cx', xS(pv)).attr('cy', cy).attr('r', 8)
+        .attr('fill', GRAY).attr('stroke', '#fff').attr('stroke-width', 2).style('cursor', 'pointer');
+      pc.on('mousemove', function(evt) {
+        showTip(evt, '<strong>' + d.fn + '</strong><div class="tp">' + d.prev + ': <b>' + stat.fmt(pv) + stat.suf + '</b></div>');
+      }).on('mouseleave', hideTip);
+
+      var oc = g.append('circle').attr('cx', xS(ov)).attr('cy', cy).attr('r', 8)
+        .attr('fill', RED).attr('stroke', '#fff').attr('stroke-width', 2).style('cursor', 'pointer');
+      oc.on('mousemove', function(evt) {
+        showTip(evt, '<strong>' + d.fn + '</strong><div class="to">Ole Miss 2025-2026: <b>' + stat.fmt(ov) + stat.suf + '</b></div>');
+      }).on('mouseleave', hideTip);
+
+      var delta = ov - pv;
+      var dTxt = (delta >= 0 ? '+' : '') + stat.fmt(delta) + stat.suf;
+      g.append('text').attr('x', xS(Math.max(pv, ov)) + 10).attr('y', cy + 5)
+        .attr('font-size', 11.5).attr('font-weight', '700')
+        .attr('fill', delta >= 0 ? RED : '#9ca3af').text(dTxt);
+    });
+
+    xS.ticks(4).forEach(function(v) {
+      g.append('text').attr('x', xS(v)).attr('y', DATA.length * rowH + 20)
+        .attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', '#9ca3af')
+        .text(stat.fmt(v) + stat.suf);
+    });
+  });
+}
+
+// ---- SEC BARS ----
+function buildSEC() {
+  var el = document.getElementById('c-sec');
+  if (!el) return;
+  el.innerHTML = '';
+  var secAvg = 10.8;
+  var W = el.offsetWidth || 460;
+  var rowH = 56, mL = 178, mR = 92, mT = 52, mB = 50, iW = W - mL - mR;
+  var h = DATA.length * rowH + mT + mB;
+  var xS = d3.scaleLinear().domain([0, 28]).range([0, iW]);
+
+  var svg = d3.select(el).append('svg')
+    .attr('width', '100%').attr('height', h)
+    .attr('viewBox', '0 0 ' + W + ' ' + h)
+    .style('overflow', 'visible');
+  var g = svg.append('g').attr('transform', 'translate(' + mL + ',' + mT + ')');
+
+  [0,5,10,15,20,25].forEach(function(v) {
+    g.append('line').attr('x1', xS(v)).attr('x2', xS(v))
+      .attr('y1', 0).attr('y2', DATA.length * rowH)
+      .attr('stroke', '#e5e7eb').attr('stroke-width', 1);
+    g.append('text').attr('x', xS(v)).attr('y', DATA.length * rowH + 26)
+      .attr('text-anchor', 'middle').attr('font-size', 12.5).attr('fill', '#9ca3af').text(v);
+  });
+
+  g.append('line').attr('x1', xS(secAvg)).attr('x2', xS(secAvg))
+    .attr('y1', 0).attr('y2', DATA.length * rowH)
+    .attr('stroke', '#c8cdd4').attr('stroke-width', 1).attr('stroke-dasharray', '4,4').attr('opacity', 0.5);
+  g.append('text').attr('x', xS(secAvg)).attr('y', -20)
+    .attr('text-anchor', 'middle').attr('font-size', 12.5).attr('fill', '#6b7280').attr('font-weight', '600')
+    .text('SEC avg (10.8 PPG)');
+  g.append('line').attr('x1', xS(secAvg)).attr('x2', xS(secAvg))
+    .attr('y1', -15).attr('y2', 0)
+    .attr('stroke', '#c8cdd4').attr('stroke-width', 1).attr('stroke-dasharray', '3,2').attr('opacity', 0.5);
+
+  DATA.forEach(function(d, i) {
+    var cy = i * rowH, val = d.ppg_o;
+    var name = d.fn;
+    g.append('text').attr('x', -12).attr('y', cy + 22)
+      .attr('text-anchor', 'end').attr('font-size', 13).attr('fill', NAVY).attr('font-weight', '600')
+      .text(name);
+    g.append('text').attr('x', -12).attr('y', cy + 37)
+      .attr('text-anchor', 'end').attr('font-size', 11).attr('fill', '#9ca3af')
+      .text('#' + d.num + ' · Ole Miss');
+
+    var bar = g.append('rect').attr('x', 0).attr('y', cy + 12)
+      .attr('width', xS(val)).attr('height', 24)
+      .attr('fill', val >= secAvg ? RED : '#d1d5db').attr('rx', 2).attr('opacity', 0.88)
+      .style('cursor', 'pointer');
+    bar.on('mousemove', function(evt) {
+      showTip(evt, '<strong>' + name + '</strong><div class="to">Ole Miss 2025-2026: <b>' + val.toFixed(1) + ' PPG</b></div><div class="tp">SEC avg: <b>10.8 PPG</b></div>');
+    }).on('mouseleave', hideTip);
+
+    g.append('text').attr('x', xS(val) + 9).attr('y', cy + 29)
+      .attr('font-size', 13).attr('font-weight', '700')
+      .attr('fill', val >= secAvg ? RED : '#6b7280')
+      .text(val.toFixed(1) + ' PPG');
+  });
+
+  g.append('text').attr('x', iW / 2).attr('y', DATA.length * rowH + 46)
+    .attr('text-anchor', 'middle').attr('font-size', 12).attr('fill', '#9ca3af')
+    .text('Points Per Game (2025-2026 season)');
+}
+
+// ---- IMPACT BARS ----
+function buildImpact() {
+  var el = document.getElementById('c-impact');
+  if (!el) return;
+  el.innerHTML = '';
+  var sorted = DATA.slice().sort(function(a,b){ return b.impact - a.impact; });
+  var bench = 10;
+  var W = el.offsetWidth || 310;
+  var rowH = 50, mL = 148, mR = 58, mT = 52, mB = 46, iW = W - mL - mR;
+  var h = sorted.length * rowH + mT + mB;
+  var xS = d3.scaleLinear().domain([0, 26]).range([0, iW]);
+
+  var svg = d3.select(el).append('svg')
+    .attr('width', '100%').attr('height', h)
+    .attr('viewBox', '0 0 ' + W + ' ' + h)
+    .style('overflow', 'visible');
+  var g = svg.append('g').attr('transform', 'translate(' + mL + ',' + mT + ')');
+
+  [0,5,10,15,20,25].forEach(function(v) {
+    g.append('line').attr('x1', xS(v)).attr('x2', xS(v))
+      .attr('y1', 0).attr('y2', sorted.length * rowH)
+      .attr('stroke', '#e5e7eb').attr('stroke-width', 1);
+    g.append('text').attr('x', xS(v)).attr('y', sorted.length * rowH + 24)
+      .attr('text-anchor', 'middle').attr('font-size', 12).attr('fill', '#9ca3af').text(v);
+  });
+
+  g.append('line').attr('x1', xS(bench)).attr('x2', xS(bench))
+    .attr('y1', 0).attr('y2', sorted.length * rowH)
+    .attr('stroke', '#9ca3af').attr('stroke-width', 2).attr('stroke-dasharray', '5,3');
+  g.append('text').attr('x', xS(bench)).attr('y', -20)
+    .attr('text-anchor', 'middle').attr('font-size', 12.5).attr('fill', '#6b7280').attr('font-weight', '600')
+    .text('SEC portal avg (10)');
+  g.append('line').attr('x1', xS(bench)).attr('x2', xS(bench))
+    .attr('y1', -15).attr('y2', 0)
+    .attr('stroke', '#9ca3af').attr('stroke-width', 1.5).attr('stroke-dasharray', '3,2');
+  g.append('text').attr('x', iW/2).attr('y', sorted.length * rowH + 42)
+    .attr('text-anchor', 'middle').attr('font-size', 12).attr('fill', '#9ca3af')
+    .text('Portal Impact Score (composite)');
+
+  sorted.forEach(function(d, i) {
+    var y0 = i * rowH, barH = 23, barY = y0 + 13, above = d.impact >= bench;
+    g.append('text').attr('x', -10).attr('y', y0 + 26)
+      .attr('text-anchor', 'end').attr('font-size', 13).attr('fill', NAVY).attr('font-weight', '600').text(d.sn);
+    g.append('text').attr('x', -10).attr('y', y0 + 41)
+      .attr('text-anchor', 'end').attr('font-size', 11).attr('fill', '#9ca3af').text('#' + d.num);
+
+    g.append('rect').attr('x', 0).attr('y', barY).attr('width', iW).attr('height', barH)
+      .attr('fill', '#f3f4f6').attr('rx', 3);
+
+    var bar = g.append('rect').attr('x', 0).attr('y', barY)
+      .attr('width', xS(d.impact)).attr('height', barH)
+      .attr('fill', above ? RED : '#9ca3af').attr('rx', 3).attr('opacity', 0.9)
+      .style('cursor', 'pointer');
+    bar.on('mousemove', function(evt) {
+      showTip(evt, '<strong>' + d.fn + '</strong><div class="to">Impact Score: <b>' + d.impact + '</b></div><div class="tp">SEC portal avg: <b>10</b></div>');
+    }).on('mouseleave', hideTip);
+
+    g.append('text').attr('x', xS(d.impact) + 9).attr('y', barY + barH/2 + 5)
+      .attr('font-size', 14).attr('font-weight', '700')
+      .attr('fill', above ? RED : '#6b7280').text(d.impact);
+  });
+}
+
+// ---- CONTRIBUTION ----
+function buildContrib() {
+  var el = document.getElementById('c-contrib');
+  if (!el) return;
+  el.innerHTML = '';
+  var W = el.offsetWidth || 310;
+  var h = 260;
+  var barColors = [RED,'#e83050','#6b2030','#a01020',NAVY,'#3d5a8a','#5a7ab0'];
+  var labels = ['Peterson','Murray','Lattimore','Iwuala','Powe','DeShields','McMahon'];
+  var total = 0;
+  DATA.forEach(function(d){ total += d.pct; });
+  var other = +(100 - total).toFixed(1);
+  var all = DATA.map(function(d, i){ return {lbl:labels[i],full:d.fn,val:d.pct,col:barColors[i]}; });
+  all.push({lbl:'Rest of Team',full:'Rest of Team',val:other,col:'#e5e7eb'});
+
+  var bW = W - 20;
+  var xS = d3.scaleLinear().domain([0,100]).range([0, bW]);
+  var svg = d3.select(el).append('svg').attr('width','100%').attr('height', h)
+    .attr('viewBox','0 0 ' + W + ' ' + h);
+
+  svg.append('text').attr('x',10).attr('y',24)
+    .attr('font-size',13).attr('font-weight','600').attr('fill',NAVY)
+    .text("Seniors' share of Ole Miss total scoring");
+
+  var cx = 10;
+  all.forEach(function(d) {
+    var bw = xS(d.val);
+    var bar = svg.append('rect').attr('x',cx).attr('y',32).attr('width',bw).attr('height',34)
+      .attr('fill',d.col).style('cursor','pointer');
+    bar.on('mousemove', function(evt) {
+      showTip(evt, '<strong>' + d.full + '</strong><div class="to"><b>' + d.val.toFixed(0) + '%</b> of team scoring</div>');
+    }).on('mouseleave', hideTip);
+    if (d.val > 5) {
+      svg.append('text').attr('x', cx + bw/2).attr('y', 53)
+        .attr('text-anchor','middle').attr('font-size',11).attr('font-weight','600')
+        .attr('fill', d.lbl === 'Rest of Team' ? '#6b7280' : '#fff')
+        .text(d.val.toFixed(0) + '%');
+    }
+    cx += bw;
+  });
+
+  var lx = 10, ly = 80;
+  all.forEach(function(d) {
+    if (lx > W - 90) { lx = 10; ly += 22; }
+    svg.append('rect').attr('x',lx).attr('y',ly).attr('width',12).attr('height',12)
+      .attr('fill',d.col).attr('rx',1);
+    svg.append('text').attr('x',lx+17).attr('y',ly+11).attr('font-size',11.5).attr('fill','#4b4b4b')
+      .text(d.lbl + ' (' + d.val.toFixed(0) + '%)');
+    lx += d.lbl.length > 10 ? 158 : 124;
+  });
+}
+
+// ---- INIT after DOM ready ----
+(function() {
+  function init() {
+    buildDumbbells();
+    buildMultiples();
+    buildSEC();
+    buildImpact();
+    buildContrib();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
